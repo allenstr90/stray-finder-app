@@ -6,14 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.io.Serializable;
-import java.util.Objects;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class StrayDTO implements Serializable {
+    @Null
     private Long id;
 
     @NotNull
@@ -21,17 +22,4 @@ public class StrayDTO implements Serializable {
 
     @NotNull
     private String type;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StrayDTO strayDTO = (StrayDTO) o;
-        return Objects.equals(id, strayDTO.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }
