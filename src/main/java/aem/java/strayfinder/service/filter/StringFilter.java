@@ -1,14 +1,14 @@
 package aem.java.strayfinder.service.filter;
 
-import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-@EqualsAndHashCode(callSuper = false)
-@Data
+@Getter
+@Setter
 public class StringFilter extends GenericFilter<String> implements Serializable {
 
     @Serial

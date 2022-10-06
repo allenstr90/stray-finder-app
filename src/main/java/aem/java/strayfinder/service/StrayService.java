@@ -3,6 +3,7 @@ package aem.java.strayfinder.service;
 import aem.java.strayfinder.persistence.model.Stray;
 import aem.java.strayfinder.persistence.model.StrayType;
 import aem.java.strayfinder.persistence.model.Stray_;
+import aem.java.strayfinder.persistence.model.Tag;
 import aem.java.strayfinder.persistence.repository.StrayRepository;
 import aem.java.strayfinder.service.filter.StringFilter;
 import aem.java.strayfinder.web.model.StrayCriteria;
@@ -14,7 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.metamodel.SingularAttribute;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -23,15 +24,20 @@ public class StrayService {
 
     private final StrayMapper strayMapper;
     private final StrayRepository strayRepository;
+    private final TagService tagService;
 
-    public StrayService(StrayMapper strayMapper, StrayRepository strayRepository) {
+    public StrayService(StrayMapper strayMapper, StrayRepository strayRepository, TagService tagService) {
         this.strayMapper = strayMapper;
         this.strayRepository = strayRepository;
+        this.tagService = tagService;
     }
 
     public StrayDTO save(StrayDTO strayDTO) {
         log.debug("saving stray {}", strayDTO);
         Stray stray = strayMapper.toEntity(strayDTO);
+        Set<Tag> existingTags = tagService.findAndInsertTags(strayDTO.getTags());
+        stray.setTags(existingTags);
+
         stray = strayRepository.save(stray);
         return strayMapper.toDto(stray);
     }
@@ -64,6 +70,10 @@ public class StrayService {
             return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.upper(root.get(field)), wrapStringLikeStatement(filter.getContains()));
         } else if (filter.getEquals() != null) {
             return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(field), StrayType.fromString(filter.getEquals()));
+        } else if (filter.getNotEquals() != null) {
+            return (root, query, criteriaBuilder) -> criteriaBuilder.notEqual(root.get(field), StrayType.fromString(filter.getNotEquals()));
+        } else if (filter.getNotContains() != null) {
+            return (root, query, criteriaBuilder) -> criteriaBuilder.notLike(criteriaBuilder.upper(root.get(field)), wrapStringLikeStatement(filter.getNotContains()));
         }
         return null;
     }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -46,6 +47,9 @@ public class Stray extends AuditEntity implements Serializable {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "stray_tag", joinColumns = @JoinColumn(name = "stray_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
+
+    @Embedded
+    private Location location;
 
     public void addTag(Tag tag) {
         this.tags.add(tag);
