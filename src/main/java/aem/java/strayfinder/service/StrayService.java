@@ -4,6 +4,7 @@ import aem.java.strayfinder.persistence.model.Stray;
 import aem.java.strayfinder.persistence.model.StrayType;
 import aem.java.strayfinder.persistence.model.Stray_;
 import aem.java.strayfinder.persistence.model.Tag;
+import aem.java.strayfinder.persistence.model.Tag_;
 import aem.java.strayfinder.persistence.repository.StrayRepository;
 import aem.java.strayfinder.service.filter.StringFilter;
 import aem.java.strayfinder.web.model.StrayCriteria;
@@ -15,6 +16,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.criteria.CriteriaBuilder.In;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.SetJoin;
 import java.util.Set;
 
 @Slf4j
@@ -52,13 +56,30 @@ public class StrayService {
     }
 
     private Specification<Stray> buildSpecification(StrayCriteria criteria) {
-        Specification<Stray> specification = Specification.where(null);
+        Specification<Stray> specification = (root, query, builder) -> {
+            query.from(Stray.class);
+            query.distinct(true);
+            return null;
+        };
+
         if (criteria != null) {
             if (criteria.getDescription() != null) {
                 specification = specification.and(buildStringFilter(criteria.getDescription(), Stray_.description.getName()));
             }
             if (criteria.getType() != null) {
                 specification = specification.and(buildStringFilter(criteria.getType(), Stray_.type.getName()));
+            }
+            if (criteria.getTags() != null && !criteria.getTags().isEmpty()) {
+                Specification<Stray> sp = (root, query, criteriaBuilder) -> {
+                    SetJoin<Stray, Tag> join = root.join(Stray_.tags, JoinType.INNER);
+                    In<String> in = criteriaBuilder.in(join.get(Tag_.name));
+                    for (String tagName :
+                            criteria.getTags()) {
+                        in = in.value(tagName);
+                    }
+                    return in;
+                };
+                specification = specification.and(sp);
             }
         }
         return specification;

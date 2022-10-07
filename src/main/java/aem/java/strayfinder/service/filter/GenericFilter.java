@@ -5,7 +5,6 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 
 @Getter
 @Setter
@@ -15,6 +14,4 @@ public class GenericFilter<T> implements Serializable {
 
     private T equals;
     private T notEquals;
-    private List<T> in;
-    private List<T> notIn;
 }

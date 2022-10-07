@@ -1,6 +1,5 @@
 package aem.java.strayfinder.service.filter;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

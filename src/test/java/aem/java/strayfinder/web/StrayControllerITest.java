@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class StrayControllerITest {
 
     @Autowired
@@ -100,5 +102,24 @@ public class StrayControllerITest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$.[0].description").value("st3"));
+    }
+
+    @Test
+    @DisplayName("filter stray by tag")
+    public void shouldFilterStrayBasedOnTags() throws Exception {
+        strayService.save(StrayDTO.builder().description("st1").type("DOG").tags(new HashSet<>(Arrays.asList("black", "larger", "intelligent"))).build());
+        strayService.save(StrayDTO.builder().description("st1-2").type("OTHER").tags(new HashSet<>(Arrays.asList("black", "larger", "intelligent"))).build());
+        strayService.save(StrayDTO.builder().description("st2").type("CAT").tags(new HashSet<>(Arrays.asList("white", "skinny"))).build());
+        strayService.save(StrayDTO.builder().description("st3").type("OTHER").build());
+
+        // filter by tag
+        this.mockMvc.perform(get("/api/v1/stray?tags=black&tags=larger&type.notEquals=dog")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$.[0].description").value("st1-2"));
     }
 }
