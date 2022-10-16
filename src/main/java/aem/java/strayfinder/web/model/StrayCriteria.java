@@ -1,7 +1,6 @@
 package aem.java.strayfinder.web.model;
 
 import aem.java.strayfinder.service.filter.StringFilter;
-import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serial;
