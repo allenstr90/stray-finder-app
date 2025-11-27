@@ -1,4 +1,4 @@
-package aem.java.strayfinder.persistence.model;
+package aem.java.strayfinder.persistence.stray.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;

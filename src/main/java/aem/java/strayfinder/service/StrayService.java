@@ -1,11 +1,10 @@
 package aem.java.strayfinder.service;
 
-import aem.java.strayfinder.persistence.model.Stray;
-import aem.java.strayfinder.persistence.model.StrayType;
-import aem.java.strayfinder.persistence.model.Stray_;
-import aem.java.strayfinder.persistence.model.Tag;
-import aem.java.strayfinder.persistence.model.Tag_;
-import aem.java.strayfinder.persistence.repository.StrayRepository;
+import aem.java.strayfinder.persistence.stray.model.Stray;
+import aem.java.strayfinder.persistence.stray.model.StrayType;
+import aem.java.strayfinder.persistence.stray.model.Stray_;
+import aem.java.strayfinder.persistence.stray.model.Tag;
+import aem.java.strayfinder.persistence.stray.repository.StrayRepository;
 import aem.java.strayfinder.service.filter.StringFilter;
 import aem.java.strayfinder.web.model.StrayCriteria;
 import aem.java.strayfinder.web.model.StrayDTO;
@@ -72,7 +71,7 @@ public class StrayService {
             if (criteria.getTags() != null && !criteria.getTags().isEmpty()) {
                 Specification<Stray> sp = (root, query, criteriaBuilder) -> {
                     SetJoin<Stray, Tag> join = root.join(Stray_.tags, JoinType.INNER);
-                    In<String> in = criteriaBuilder.in(join.get(Tag_.name));
+                    In<String> in = criteriaBuilder.in(join.get("name"));
                     for (String tagName :
                             criteria.getTags()) {
                         in = in.value(tagName);

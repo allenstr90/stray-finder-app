@@ -21,8 +21,7 @@ public class ImgRefDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = -6188834396926191023L;
 
-    @Null
-    private Long id;
+    private String id;
 
     @NotNull
     @Size(min = 1, max = 50)
@@ -32,4 +31,9 @@ public class ImgRefDTO implements Serializable {
     @Size(min = 6)
     @Pattern(regexp = "[a-z]{3,}/[a-z]{3,}", message = "Mime type invalid. It should looks like " + MimeTypeUtils.IMAGE_JPEG_VALUE)
     private String mimeType;
+
+    @NotNull
+    private Long strayId;
+
+    private String imageBase64;
 }

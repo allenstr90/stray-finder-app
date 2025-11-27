@@ -5,12 +5,8 @@ import aem.java.strayfinder.service.ImgRefService;
 import aem.java.strayfinder.web.model.ImgRefDTO;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
@@ -28,15 +24,16 @@ public class ImageResource {
         this.imgRefService = imgRefService;
     }
 
-    @PostMapping(value = "/img/{strayId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ImgRefDTO> addNewImgReference(@PathVariable("strayId") Long strayId, @Valid @RequestBody ImgRefDTO imgRefDTO) throws StrayNotFoundException, URISyntaxException {
-        ImgRefDTO imgRef = imgRefService.addNewImgRef(strayId, imgRefDTO);
-        return ResponseEntity.created(new URI("/api/v1/img/" + strayId)).body(imgRef);
+    @PostMapping(value = "/img", consumes =  MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImgRefDTO> addNewImage(@Valid @RequestPart ImgRefDTO image, @RequestPart("file") MultipartFile file) throws IOException {
+        ImgRefDTO imgRef = imgRefService.uploadFile(image, file);
+        return ResponseEntity.ok(imgRef);
     }
 
-    @PostMapping("/img/{id}/upload")
-    public ResponseEntity<ImgRefDTO> uploadImg(@PathVariable("id") Long imgRefId, @RequestParam("file") MultipartFile file) throws IOException {
-        ImgRefDTO imgRef = imgRefService.uploadFile(imgRefId, file);
-        return ResponseEntity.ok(imgRef);
+    @GetMapping("/img/{id}")
+    public ResponseEntity<ImgRefDTO> getImage(@PathVariable String id) {
+        return ResponseEntity.ok(
+                imgRefService.getImgRefById(id)
+        );
     }
 }

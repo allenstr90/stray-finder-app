@@ -44,4 +44,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleInvalidImageReference(InvalidImageReferenceException e, WebRequest request) {
         return handleExceptionInternal(e, Collections.singletonList(e.getMessage()), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler(ImageNotFoundException.class)
+    public ResponseEntity<Object> handleImageNotFound(ImageNotFoundException e, WebRequest request) {
+        return handleExceptionInternal(e, Collections.singletonList(e.getMessage()), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
 }

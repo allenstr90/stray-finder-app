@@ -1,7 +1,7 @@
 package aem.java.strayfinder.service;
 
-import aem.java.strayfinder.persistence.model.Tag;
-import aem.java.strayfinder.persistence.repository.TagRepository;
+import aem.java.strayfinder.persistence.stray.model.Tag;
+import aem.java.strayfinder.persistence.stray.repository.TagRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

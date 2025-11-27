@@ -1,44 +1,39 @@
-package aem.java.strayfinder.persistence.model;
+package aem.java.strayfinder.persistence.images;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.types.Binary;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.MapsId;
-import javax.persistence.OneToOne;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Entity
+@Document(collection = "images")
 @Getter
 @Setter
-public class ImageRef extends AuditEntity implements Serializable {
+@NoArgsConstructor
+public class ImageRef implements Serializable {
     @Serial
     private static final long serialVersionUID = 2L;
 
     @Id
-    private Long id;
+    private String id;
 
     private String name;
 
     private String path;
     private String hash;
     private String mimeType;
-
+    private Binary image;
+    private Long strayId;
     @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(columnDefinition = "blob")
-    private byte[] bytes;
-
-    @MapsId
-    @OneToOne(fetch = FetchType.LAZY)
-    private Stray stray;
+    @Basic(fetch = FetchType.EAGER)
 
     @Override
     public boolean equals(Object o) {
@@ -49,7 +44,6 @@ public class ImageRef extends AuditEntity implements Serializable {
 
     @Override
     public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return getClass().hashCode();
+        return Objects.hash(name);
     }
 }

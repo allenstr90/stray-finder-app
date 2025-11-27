@@ -1,6 +1,6 @@
 package aem.java.strayfinder.web;
 
-import aem.java.strayfinder.persistence.model.StrayType;
+import aem.java.strayfinder.persistence.stray.model.StrayType;
 import aem.java.strayfinder.service.StrayService;
 import aem.java.strayfinder.web.model.StrayDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;

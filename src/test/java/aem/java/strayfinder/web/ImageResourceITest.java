@@ -1,8 +1,8 @@
 package aem.java.strayfinder.web;
 
-import aem.java.strayfinder.persistence.model.ImageRef;
-import aem.java.strayfinder.persistence.model.StrayType;
-import aem.java.strayfinder.persistence.repository.ImgRefRepository;
+import aem.java.strayfinder.persistence.images.ImageRef;
+import aem.java.strayfinder.persistence.stray.model.StrayType;
+import aem.java.strayfinder.persistence.images.ImgRefRepository;
 import aem.java.strayfinder.service.ImgRefService;
 import aem.java.strayfinder.service.StrayService;
 import aem.java.strayfinder.web.model.ImgRefDTO;
@@ -24,10 +24,10 @@ import org.springframework.util.MimeTypeUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -56,102 +56,52 @@ public class ImageResourceITest {
     @BeforeEach
     void setUp() {
         imgRefDTO = ImgRefDTO.builder()
+                .id(UUID.randomUUID().toString())
                 .name("img1")
+                .strayId(1L)
                 .mimeType(MimeTypeUtils.IMAGE_JPEG_VALUE)
                 .build();
     }
 
     @Test
-    void addImgRefShouldNotFound_whenNoStray() throws Exception {
+    void getNonExistingImage_shouldReturnNotFound() throws Exception {
         this.mockMvc.perform(
-                        post("/api/v1/img/{id}", 1L)
+                        get("/api/v1/img/{id}", imgRefDTO.getId())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsBytes(imgRefDTO))
                 )
                 .andDo(print()).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.[*]").value(hasItem("The stray doesn't exists")));
+                .andExpect(jsonPath("$.[*]").value(hasItem("Image not found.")));
     }
 
     @Test
     @Transactional
-    void addImgRefWithValidStray_shouldReturnCreated() throws Exception {
-        StrayDTO strayDTO = StrayDTO.builder()
-                .description("test stray")
-                .type(StrayType.DOG.name())
-                .tags(new HashSet<>(Arrays.asList("black", "larger")))
-                .latitude(22.984982)
-                .longitude(-82.466689)
-                .build();
-        strayDTO = strayService.save(strayDTO);
-
-        this.mockMvc.perform(
-                        post("/api/v1/img/{id}", strayDTO.getId())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(mapper.writeValueAsBytes(imgRefDTO))
-                )
-                .andDo(print()).andExpect(status().isCreated())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(header().exists("Location"))
-                .andExpect(jsonPath("$.id").value(strayDTO.getId()))
-                .andExpect(jsonPath("$.name").value(imgRefDTO.getName()))
-                .andExpect(jsonPath("$.mimeType").value(imgRefDTO.getMimeType()));
-    }
-
-    @Test
-    void uploadImage_shouldReturnBadRequest_whenInvalidImgRef() throws Exception{
+    void uploadImage_shouldStoreTheImage() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "lab.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
                 getClass().getResourceAsStream("/lab.jpg")
         );
-
-        this.mockMvc.perform(
-                        multipart("/api/v1/img/{id}/upload", 1L)
-                                .file(file)
-                )
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*]").value(hasItem("Invalid image reference. You can't upload that image.")));
-    }
-
-    @Test
-    @Transactional
-    void uploadImage_shouldUpdateBytesAndHash() throws Exception {
-        StrayDTO strayDTO = StrayDTO.builder()
-                .description("test stray")
-                .type(StrayType.DOG.name())
-                .tags(new HashSet<>(Arrays.asList("black", "larger")))
-                .latitude(22.984982)
-                .longitude(-82.466689)
-                .build();
-        strayDTO = strayService.save(strayDTO);
-        imgRefDTO = imgRefService.addNewImgRef(strayDTO.getId(), imgRefDTO);
-
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "lab.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                getClass().getResourceAsStream("/lab.jpg")
+        MockMultipartFile imgJson = new MockMultipartFile(
+                "image",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                mapper.writeValueAsBytes(imgRefDTO)
         );
-
         this.mockMvc.perform(
-                        multipart("/api/v1/img/{id}/upload", imgRefDTO.getId())
+                        multipart("/api/v1/img")
                                 .file(file)
+                                .file(imgJson)
                 )
                 .andDo(print()).andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(strayDTO.getId()))
+                .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").value(imgRefDTO.getName()))
-                .andExpect(jsonPath("$.mimeType").value(imgRefDTO.getMimeType()));
+                .andExpect(jsonPath("$.mimeType").value(imgRefDTO.getMimeType()))
+                .andExpect(jsonPath("$.strayId").value(imgRefDTO.getStrayId()))
+                .andExpect(jsonPath("$.imageBase64").isNotEmpty());
 
-        ImageRef imageRef = imgRefRepository
-                .findById(imgRefDTO.getId()).get();
-
-        String md5DigestAsHex = DigestUtils.md5DigestAsHex(file.getBytes());
-        Assertions.assertArrayEquals(imageRef.getBytes(), file.getBytes());
-        Assertions.assertEquals(imageRef.getHash(), md5DigestAsHex);
     }
 }
