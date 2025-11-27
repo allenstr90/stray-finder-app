@@ -1,7 +1,7 @@
 package aem.java.strayfinder.service;
 
-import aem.java.strayfinder.persistence.model.Stray;
-import aem.java.strayfinder.persistence.model.Tag;
+import aem.java.strayfinder.persistence.stray.model.Stray;
+import aem.java.strayfinder.persistence.stray.model.Tag;
 import aem.java.strayfinder.web.model.StrayDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

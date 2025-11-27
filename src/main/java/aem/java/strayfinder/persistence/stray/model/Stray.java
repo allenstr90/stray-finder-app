@@ -1,6 +1,7 @@
-package aem.java.strayfinder.persistence.model;
+package aem.java.strayfinder.persistence.stray.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
@@ -27,6 +28,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class Stray extends AuditEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -45,7 +47,10 @@ public class Stray extends AuditEntity implements Serializable {
     private StrayType type;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "stray_tag", joinColumns = @JoinColumn(name = "stray_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    @JoinTable(name = "stray_tag", 
+        joinColumns = @JoinColumn(name = "stray_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
+    )
     private Set<Tag> tags = new HashSet<>();
 
     @Embedded

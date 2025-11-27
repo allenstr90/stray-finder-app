@@ -1,4 +1,4 @@
-package aem.java.strayfinder.persistence.model;
+package aem.java.strayfinder.persistence.stray.model;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
-package aem.java.strayfinder.persistence.repository;
+package aem.java.strayfinder.persistence.stray.repository;
 
-import aem.java.strayfinder.persistence.model.Tag;
+import aem.java.strayfinder.persistence.stray.model.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
