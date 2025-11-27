@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "aem.java.strayfinder.persistence.stray.repository",
+        basePackages = "aem.java.strayfinder.persistence.stray",
         entityManagerFactoryRef = "strayEntityManagerFactory",
         transactionManagerRef = "strayTransactionManager"
 )
@@ -36,7 +36,7 @@ public class DatabaseConfig {
     ) {
         return builder
                 .dataSource(dataSource)
-                .packages("aem.java.strayfinder.persistence.stray.model")
+                .packages("aem.java.strayfinder.persistence.stray")
                 .persistenceUnit("stray")
                 .build();
     }

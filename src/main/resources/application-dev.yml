@@ -14,9 +14,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/stray_finder_dev
     username: postgres
     password: postgres
-    driver-class-name: org.postgresql.Driver
-    hikary:
-      maximum-pool-size:
+    hikari:
+      maximum-pool-size: 5
   servlet:
     multipart:
       enabled: true
@@ -31,6 +30,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        hbm2ddl:
+          auto: create
   sql:
     init:
       mode: always

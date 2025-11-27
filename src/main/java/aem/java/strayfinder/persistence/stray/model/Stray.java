@@ -48,8 +48,8 @@ public class Stray extends AuditEntity implements Serializable {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "stray_tag", 
-        joinColumns = @JoinColumn(name = "stray_id"), 
-        inverseJoinColumns = @JoinColumn(name = "tag_id")
+        joinColumns = @JoinColumn(name = "stray_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
     )
     private Set<Tag> tags = new HashSet<>();
 
